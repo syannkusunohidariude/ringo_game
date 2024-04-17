@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <title>りんご拾う エンドレス</title>
+  <style>
+    * { padding: 0; margin: 0; }
+    canvas { display: block; margin: 0 auto;}
+    
+    body {
+      background-size:200px,300px; 
+      background-position: center;
+      background-repeat: no-repeat; 
+    }
+
+  </style>
+</head>
+<body>
+<canvas style="border:solid 1px black;" id="myCanvas" width="480" height="320"></canvas>
+
+<script>
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
+var ballRadius = 10;
+var x = canvas.width/2;
+var y = canvas.height-300;
+var dx = 0;
+var dy = 2;
+var paddleHeight = 10;
+var paddleWidth = 75;
+var paddleX = (canvas.width-paddleWidth)/2;
+var rightPressed = false;
+var leftPressed = false;
+var apple_PickUp=0;
+var apple_Drop=0;
+var apple_color=0;
+var apple_rondom=0;
+
+function getRandomInt(min, max) {   ///金のりんごを生成する
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+document.addEventListener("keydown", keyDownHandler, false);
+document.addEventListener("keyup", keyUpHandler, false);
+
+function keyDownHandler(e) {
+    if(e.key == "Right" || e.key == "ArrowRight") {
+        rightPressed = true;
+    }
+    else if(e.key == "Left" || e.key == "ArrowLeft") {
+        leftPressed = true;
+    }
+}
+
+function keyUpHandler(e) {
+    if(e.key == "Right" || e.key == "ArrowRight") {
+        rightPressed = false;
+    }
+    else if(e.key == "Left" || e.key == "ArrowLeft") {
+        leftPressed = false;
+    }
+}
+
+function drawPaddle() {
+    ctx.beginPath();
+    ctx.rect(paddleX, canvas.height-paddleHeight, paddleWidth, paddleHeight);
+    ctx.fillStyle = "#0095DD";
+    ctx.fill();
+    ctx.closePath();
+}
+
+function drawBall() {  ///りんご
+    ctx.beginPath();
+    ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+    if(apple_color!==1){
+    ctx.fillStyle = "red";
+    }else{
+    ctx.fillStyle = "#F0E68C";
+    }
+    ctx.fill();
+    ctx.closePath();
+    
+}
+
+function drawScore(){
+    ctx.font = "20px Arial";
+    ctx.fillStyle = "#0095DD";
+    ctx.fillText("拾った個数は: "+apple_PickUp+"個",10,20);
+
+    ctx.font = "20px Arial";
+    ctx.fillStyle = "#0095DD";
+    ctx.fillText("落とした個数は: "+apple_Drop+"個",250,20);
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawPaddle();//player
+    drawScore();//スコア表の表示
+
+    //player操作
+    if(rightPressed) {
+        paddleX += 7;
+        if (paddleX + paddleWidth > canvas.width){
+            paddleX = canvas.width - paddleWidth;
+        }
+    }
+    else if(leftPressed) {
+        paddleX -= 7;
+        if (paddleX < 0){
+            paddleX = 0;
+        }
+    }
+    drawBall();//りんご
+
+    //りんごの当たり判定
+    if(y+dy>canvas.height-ballRadius-paddleHeight && paddleX<x && paddleX+paddleWidth>x){ ///りんごを拾った
+        y=30;
+        x=Math.floor(Math.random() * canvas.width-ballRadius*4)+ballRadius*2;//りんごが隅っこに途切れないように
+        if(apple_color==1){
+            apple_PickUp+=3;
+        }else{
+            apple_PickUp+=1;
+        }
+        apple_color=0;
+        var randomNumber = getRandomInt(1, 5); ///金のりんごを生成するかどうか
+        apple_color=randomNumber;
+
+
+    }else if(y + dy > canvas.height-ballRadius) {
+        y=30;
+        x=Math.floor(Math.random() * canvas.width-ballRadius*4)+ballRadius*2;
+        apple_Drop+=1;
+        apple_color=0;
+    }
+
+    x += dx;
+    y += dy;
+}
+
+setInterval(draw, 10);
+</script>
+</body>
+</html>
